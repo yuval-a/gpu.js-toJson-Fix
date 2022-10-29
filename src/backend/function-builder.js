@@ -190,7 +190,6 @@ class FunctionBuilder {
     if (subKernels) {
       subKernelNodes = subKernels.map((subKernel) => {
         const { name, source } = subKernel;
-        console.log ("SUBKERNEL NEW FUNCTION NODE");
 
         return new FunctionNode(source, Object.assign({}, nodeOptions, {
           name,
