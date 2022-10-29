@@ -107,6 +107,7 @@ class WebGLKernel extends GLKernel {
    * @returns {KernelValue}
    */
   static lookupKernelValueType(type, dynamic, precision, value) {
+    if (!precision) precision = "single";
     return lookupKernelValueType(type, dynamic, precision, value);
   }
 
@@ -177,6 +178,8 @@ class WebGLKernel extends GLKernel {
     this.uniform3ivCache = {};
     this.uniform4fvCache = {};
     this.uniform4ivCache = {};
+
+    this.setupConstants(arguments);
   }
 
   initCanvas() {
@@ -351,6 +354,7 @@ class WebGLKernel extends GLKernel {
     this.argumentTextureCount = 0;
     const needsArgumentTypes = this.argumentTypes === null;
     // TODO: remove
+
     if (needsArgumentTypes) {
       this.argumentTypes = [];
     }
@@ -358,6 +362,7 @@ class WebGLKernel extends GLKernel {
     this.argumentBitRatios = [];
     // TODO: end remove
 
+    this.argumentNames = this.argumentNames || [];
     if (args.length < this.argumentNames.length) {
       throw new Error('not enough arguments for kernel');
     } else if (args.length > this.argumentNames.length) {
@@ -428,7 +433,7 @@ class WebGLKernel extends GLKernel {
     const { context: gl } = this;
     this.kernelConstants = [];
     this.forceUploadKernelConstants = [];
-    let needsConstantTypes = this.constantTypes === null;
+    let needsConstantTypes = this.constantTypes === null || !Object.values(this.constantTypes).length;
     if (needsConstantTypes) {
       this.constantTypes = {};
     }
@@ -1115,7 +1120,8 @@ float integerCorrectionModulo(float number, float divisor) {
    */
   _getMainArgumentsString(args) {
     const results = [];
-    const { argumentNames } = this;
+    let { argumentNames } = this;
+    this.argumentNames = argumentNames || [];
     for (let i = 0; i < argumentNames.length; i++) {
       results.push(this.kernelArguments[i].getSource(args[i]));
     }

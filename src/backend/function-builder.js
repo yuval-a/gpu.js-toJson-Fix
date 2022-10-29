@@ -14,8 +14,6 @@ class FunctionBuilder {
    */
   static fromKernel(kernel, FunctionNode, extraNodeOptions) {
     const {
-      kernelArguments,
-      kernelConstants,
       argumentNames,
       argumentSizes,
       argumentBitRatios,
@@ -36,6 +34,14 @@ class FunctionBuilder {
       dynamicArguments,
       dynamicOutput,
     } = kernel;
+
+    let {
+      kernelArguments,
+      kernelConstants
+    } = kernel;
+
+    kernelArguments = kernelArguments || [];
+    kernelConstants = kernelConstants || [];
 
     const argumentTypes = new Array(kernelArguments.length);
     const constantTypes = {};
@@ -90,6 +96,7 @@ class FunctionBuilder {
       for (let i = 0; i < ast.params.length; i++) {
         argumentNames.push(ast.params[i].name);
       }
+      console.log ("NESTED FUNCTION BUILD FUNCTION NODE");
       const nestedFunction = new FunctionNode(source, Object.assign({}, nodeOptions, {
         returnType: null,
         ast,
@@ -153,7 +160,9 @@ class FunctionBuilder {
 
     let functionNodes = null;
     if (functions) {
-      functionNodes = functions.map((fn) => new FunctionNode(fn.source, {
+      functionNodes = functions.map((fn) => {
+      
+      return new FunctionNode(fn.source, {
         returnType: fn.returnType,
         argumentTypes: fn.argumentTypes,
         output,
@@ -173,13 +182,16 @@ class FunctionBuilder {
         triggerImplyArgumentBitRatio,
         onFunctionCall,
         onNestedFunction,
-      }));
-    }
+      })
+    });
+  }
 
     let subKernelNodes = null;
     if (subKernels) {
       subKernelNodes = subKernels.map((subKernel) => {
         const { name, source } = subKernel;
+        console.log ("SUBKERNEL NEW FUNCTION NODE");
+
         return new FunctionNode(source, Object.assign({}, nodeOptions, {
           name,
           isSubKernel: true,
@@ -391,6 +403,7 @@ class FunctionBuilder {
     this.functionMap = {};
     for (let i = 0; i < jsonFunctionNodes.length; i++) {
       const jsonFunctionNode = jsonFunctionNodes[i];
+      console.log ("FROM JSON NEW FUNC NODE");
       this.functionMap[jsonFunctionNode.settings.name] = new FunctionNode(jsonFunctionNode.ast, jsonFunctionNode.settings);
     }
     return this;

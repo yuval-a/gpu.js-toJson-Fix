@@ -222,6 +222,7 @@ class Kernel {
     this.fixIntegerDivisionAccuracy = null;
     this.built = false;
     this.signature = null;
+    this.setupConstants(arguments);
   }
 
   /**
